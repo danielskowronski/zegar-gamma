@@ -1,3 +1,4 @@
+#include <RTClib.h>
 #include <Wire.h>
 #include <LCD.h>
 #include <LiquidCrystal_I2C.h>
@@ -14,31 +15,54 @@
 
 LiquidCrystal_I2C	lcd(I2C_ADDR,En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin);
 
+
+RTC_DS1307 rtc;
+
 void setup() {
-  lcd.begin (16,2); //  <<----- My LCD was 16x2
+  lcd.begin (16,2);
   lcd.setBacklightPin(BACKLIGHT_PIN,POSITIVE);
   lcd.setBacklight(HIGH);
   
   lcd.home ();
   lcd.print("Zegar Gamma [ds]");  
   lcd.setCursor(0,1);
-  lcd.print("build 0001");
+  lcd.print("build 0002");
   
   for (int i=5; i>=0; i--){
     lcd.setCursor(15,1);lcd.print(i);
-    delay(500);
+    delay(350);
   }
-}
-
-int n=0;
-void loop(){
   lcd.clear();
-  lcd.setCursor(0,0); lcd.print("znak #");
-  lcd.setCursor(6,0); lcd.print(n);
-  lcd.setCursor(0,1); lcd.print(char(n));
   
-  delay(500);
-  n++;
-  if (n>256) n=0;
+  Serial.begin(57600);
+  if (! rtc.begin()) {
+    lcd.setCursor(0,0);lcd.println("No RTC found");
+    while (1);
+  }
+
+  if (! rtc.isrunning()) {
+    lcd.setCursor(0,0);lcd.println("No date set");
+    lcd.setCursor(0,1);lcd.println("Date from code");
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  }
+  
+  lcd.clear();
 }
 
+void loop(){  
+  DateTime now = rtc.now();
+  lcd.setCursor(0,0);
+  if (now.hour()<10) lcd.print("0"); lcd.print(now.hour(), DEC);
+  lcd.print(':');
+  if (now.minute()<10) lcd.print("0"); lcd.print(now.minute(), DEC);
+  lcd.print(':');
+  if (now.second()<10) lcd.print("0"); lcd.print(now.second(), DEC);
+  
+  lcd.setCursor(0,1);   
+  lcd.print(now.year(), DEC);
+  lcd.print('/');
+  if (now.month()<10) lcd.print("0"); lcd.print(now.month(), DEC);
+  lcd.print('/');
+  if (now.day()<10) lcd.print("0"); lcd.print(now.day(), DEC);
+  delay(500);
+}
