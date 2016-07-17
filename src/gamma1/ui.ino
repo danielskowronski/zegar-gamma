@@ -43,25 +43,41 @@ int trend(int* array, int start=currIdx, int count=10){
   
   if (balance>0) return 1; else if (balance<0) return -1; else return 0;
 }
-int* readThm(int count=10){
-  int* vals = new int[2];
-  
+int thmVals[2] = {0,0};
+void readThm(int count=10){
   int thm=0;
   for (int i=0; i<100; i++){
-    thm += (analogRead(thm_in_pin)/1024.0)*5000;
+    thm += (analogRead(thm_int_pin)/1024.0)*5000;
   }
   thm /= 100;
-  vals[0]=thm;
+  thm /= 2; thm *= 2;
+  thmVals[0]=thm;
+  thm1_history[currIdx]=thm/5;
   
-  thm1_history[currIdx]=thm;
+  thm=0;
+  for (int i=0; i<100; i++){
+    thm += (analogRead(thm_ext_pin)/1024.0)*5000;
+  }
+  thm /= 100;
+  thm /= 2; thm *= 2;
+  thmVals[1]=thm;
+  thm1_history[currIdx]=thm/5;
+  
+  
   currIdx=incmod(currIdx, count);
-  
-  return vals;
 }
 
-int currentMode = 0;
+int currentMode = 1;
+int secondsInCurrentMode = -1;
+const int modeCound=2;
 void displaySecondLine(){
-  int thm = readThm()[0];
+  secondsInCurrentMode++;
+  secondsInCurrentMode%=5;
+  if (secondsInCurrentMode!=0) return;
+  
+  readThm();
+  
+  int thm = thmVals[1];
   
   lcd.setCursor(0,1); 
   
