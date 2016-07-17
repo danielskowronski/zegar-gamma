@@ -13,6 +13,8 @@
 #define D6_pin  6
 #define D7_pin  7
 
+#define thm_in_pin 7
+
 LiquidCrystal_I2C	lcd(I2C_ADDR,En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin);
 
 RTC_DS1307 rtc;
@@ -26,7 +28,7 @@ void setup() {
   lcd.home ();
   lcd.print("Zegar Gamma [ds]");  
   lcd.setCursor(0,1);
-  lcd.print("build 0003");
+  lcd.print("build 0004");
   
   for (int i=5; i>=0; i--){
     lcd.setCursor(15,1);lcd.print(i);
@@ -50,24 +52,16 @@ void setup() {
   lcd.clear();
 }
 
+DateTime now;
 void loop(){  
-  DateTime now = rtc.now();
-  lcd.setCursor(0,0);
-  if (now.hour()<10) lcd.print("0"); lcd.print(now.hour(), DEC);
-  lcd.print(':');
-  if (now.minute()<10) lcd.print("0"); lcd.print(now.minute(), DEC);
-  lcd.print(':');
-  if (now.second()<10) lcd.print("0"); lcd.print(now.second(), DEC);
+  now= rtc.now();
   
-  lcd.setCursor(10,0);   
-  if (now.day()<10) lcd.print(" "); lcd.print(now.day(), DEC);
-  lcd.print(" ");
-  lcd.print(monthsNames[now.month()-1]);
+  if (secondChanged()){
+    displayStandardTimeDateLine();
+    displaySecondLine(); 
+  }
   
   
-  lcd.setCursor(0,1);
-  lcd.print((analogRead(7)/1024.0)*500);
-  lcd.print(char(223));lcd.print("C");
   
   
   delay(100);
