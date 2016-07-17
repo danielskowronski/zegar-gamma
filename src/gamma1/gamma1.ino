@@ -20,15 +20,24 @@ LiquidCrystal_I2C	lcd(I2C_ADDR,En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin)
 RTC_DS1307 rtc;
 char monthsNames[12][4] = { "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec" };
 
+byte arrowUpRight[8] = {0,15,3,5,9,16,0}, arrowDownRight[8] = {0,16,9,5,3,15,0}, degreeCels[8] = {24,24,3,4,4,4,3}, internalSymbol[8] = {31,17,21,14,31,4,4}, externalSymbol[8]={4,14,31,4,21,17,31};
+
 void setup() {  
+  
   lcd.begin (16,2);
   lcd.setBacklightPin(BACKLIGHT_PIN,POSITIVE);
   lcd.setBacklight(HIGH);
   
+  lcd.createChar(0, arrowUpRight);
+  lcd.createChar(1, arrowDownRight);
+  lcd.createChar(2, degreeCels);
+  lcd.createChar(3, internalSymbol);
+  lcd.createChar(4, externalSymbol);
+  
   lcd.home ();
   lcd.print("Zegar Gamma [ds]");  
   lcd.setCursor(0,1);
-  lcd.print("build 0004");
+  lcd.print("build 0005");
   
   for (int i=5; i>=0; i--){
     lcd.setCursor(15,1);lcd.print(i);
